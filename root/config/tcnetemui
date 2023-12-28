@@ -1,0 +1,9 @@
+
+config tcnetemui 'settings'
+	option upload_limit '5000'
+	option download_limit '10000'
+	option packet_loss '0'
+	option upload_delay '0'
+	option download_delay '0'
+	option upload_jitter '0'
+	option download_jitter '0'
