@@ -19,8 +19,14 @@ s:option(Value, "download_jitter", translate("Download jitter"), translate("Set 
 
 s:option(Value, "packet_loss", translate("Packet loss"), translate("Set the network packet loss"))
 
+local function get_device_for_interface(interface)
+    return uci:get("network", interface, "device")
+end
 
 function m.on_after_commit(map)
+
+    local lan_device = get_device_for_interface("lan")
+    local wan_device = get_device_for_interface("wan")
     local saved_upload_limit = uci:get("tcnetemui", "settings", "upload_limit")
     local saved_download_limit = uci:get("tcnetemui", "settings", "download_limit")
     local saved_packet_loss = uci:get("tcnetemui", "settings", "packet_loss")
@@ -29,11 +35,11 @@ function m.on_after_commit(map)
     local saved_jitter = uci:get("tcnetemui", "settings", "upload_jitter")
     local saved_jitter = uci:get("tcnetemui", "settings", "download_jitter")
 
-    luci.sys.exec("tc qdisc del dev br-lan root")
-    luci.sys.exec("tc qdisc del dev eth0.2 root")
+    luci.sys.exec(string.format("tc qdisc del dev %s root",lan_device))
+    luci.sys.exec(string.format("tc qdisc del dev %s root", wan_device))
 
-    luci.sys.exec(string.format("tc qdisc add dev br-lan root netem rate %skbit delay %sms %sms loss %s", saved_download_limit, saved_delay, saved_jitter, saved_packet_loss))
-    luci.sys.exec(string.format("tc qdisc add dev eth0.2 root netem rate %skbit delay %sms %sms", saved_upload_limit, saved_delay, saved_jitter))
+    luci.sys.exec(string.format("tc qdisc add dev %s root netem rate %skbit delay %sms %sms loss %s",lan_device, saved_download_limit, saved_delay, saved_jitter, saved_packet_loss))
+    luci.sys.exec(string.format("tc qdisc add dev %s root netem rate %skbit delay %sms %sms", wan_device, saved_upload_limit, saved_delay, saved_jitter))
 
     luci.sys.exec("tc qdisc")
 end
