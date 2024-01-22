@@ -39,14 +39,59 @@ function resetUploadLimit() {
             downloadPacketLossField.value = '0';
         }
 }
+function showToast(message) {
+    var toast = document.createElement("div");
+
+    toast.style.visibility = "hidden";
+            toast.style.minWidth = "250px";
+            toast.style.marginLeft = "-125px";
+            toast.style.backgroundColor = "green";
+            toast.style.color = "white";
+            toast.style.textAlign = "center";
+            toast.style.borderRadius = "2px";
+            toast.style.borderColor = "black";
+            toast.style.padding = "16px";
+            toast.style.position = "fixed";
+            toast.style.zIndex = "1";
+            toast.style.left = "50%";
+            toast.style.top = "100px";
+            toast.style.transform = "translateX(-50%)";
+            toast.style.fontSize = "17px";
+            toast.style.transition = "opacity 0.5s ease";
+            toast.style.border = "1px solid black";
+    toast.textContent = message;
+    var mainContentDiv = document.getElementById("maincontent");
+            mainContentDiv.appendChild(toast);
+    setTimeout(function() {
+        toast.style.visibility = "visible";
+        toast.style.opacity = "1";
+    }, 100);
+
+    setTimeout(function() {
+        toast.style.visibility = "hidden";
+        toast.style.opacity = "0";
+        setTimeout(function() { document.body.removeChild(toast); }, 600);
+    }, 3000);
+}
+window.addEventListener('DOMContentLoaded', (event) => {
+    var button = document.getElementById("cbid\.tcnetemui\.settings\.set");
+    if (button) {
+        button.addEventListener("click", function(event) {
+            resetUploadLimit();
+            showToast("LIMITATIONS SET!");
+        });
+    }
+})
 window.addEventListener('DOMContentLoaded', (event) => {
     var button = document.getElementById("cbid\.tcnetemui\.settings\.remove_all");
     if (button) {
         button.addEventListener("click", function(event) {
             resetUploadLimit();
+            showToast("LIMITATIONS REMOVED!");
         });
     }
-})</script>]]
+})
+</script>]]
 luci.http.write(css)
 local s = m:section(NamedSection, "settings", "tcnetemui", "Settings", "Emulate network properties to simulate real-world network impairments")
 
