@@ -1,11 +1,10 @@
 local uci = require("luci.model.uci").cursor()
 require "luci.util"
 local m = Map("tcnetemui", translate("Traffic Control Network Emulation"))
-m.footer = [[test]]
 local css = [[<style></style>
 <script type="text/javascript">//<![CDATA[
-console.log("test");
-function resetUploadLimit() {
+//following function supports "Remove All" button by replacing field values to '0'
+function resetFieldValues() {
     var uploadLimitField = document.getElementById('widget\.cbid\.tcnetemui\.settings\.upload_limit');
         if (uploadLimitField) {
             uploadLimitField.value = '0';
@@ -39,14 +38,69 @@ function resetUploadLimit() {
             downloadPacketLossField.value = '0';
         }
 }
+//Create a function to show a toast message once "Set" or "Remove" buttons are clicked
+function showToast(message) {
+    var toast = document.createElement("div");
+    toast.style.visibility = "hidden";
+            toast.style.minWidth = "250px";
+            toast.style.marginLeft = "-125px";
+            toast.style.backgroundColor = "green";
+            toast.style.color = "white";
+            toast.style.textAlign = "center";
+            toast.style.borderRadius = "2px";
+            toast.style.borderColor = "black";
+            toast.style.padding = "16px";
+            toast.style.position = "fixed";
+            toast.style.zIndex = "1";
+            toast.style.left = "50%";
+            toast.style.top = "100px";
+            toast.style.transform = "translateX(-50%)";
+            toast.style.fontSize = "17px";
+            toast.style.transition = "opacity 0.5s ease";
+            toast.style.border = "1px solid black";
+    toast.textContent = message;
+    var mainContentDiv = document.getElementById("maincontent");
+            mainContentDiv.appendChild(toast);
+    setTimeout(function() {
+        toast.style.visibility = "visible";
+        toast.style.opacity = "1";
+    }, 100);
+
+    setTimeout(function() {
+        toast.style.visibility = "hidden";
+        toast.style.opacity = "0";
+        setTimeout(function() { document.body.removeChild(toast); }, 600);
+    }, 3000);
+}
+window.addEventListener('DOMContentLoaded', (event) => {
+    var button = document.getElementById("cbid\.tcnetemui\.settings\.set");
+    if (button) {
+        button.addEventListener("click", function(event) {
+            showToast("LIMITATIONS SET!");
+        });
+    }
+})
 window.addEventListener('DOMContentLoaded', (event) => {
     var button = document.getElementById("cbid\.tcnetemui\.settings\.remove_all");
     if (button) {
         button.addEventListener("click", function(event) {
-            resetUploadLimit();
+            resetFieldValues();
+            showToast("LIMITATIONS REMOVED!");
         });
     }
-})</script>]]
+})
+document.addEventListener("DOMContentLoaded", function() {
+    // Find the form element by its name attribute
+    var form = document.forms["cbi"];
+
+    // Prevent form submission on Enter keypress
+    form.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault(); // Prevent the default form submission
+      }
+    });
+  });
+</script>]]
 luci.http.write(css)
 local s = m:section(NamedSection, "settings", "tcnetemui", "Settings", "Emulate network properties to simulate real-world network impairments")
 
